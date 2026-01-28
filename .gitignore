@@ -1,0 +1,26 @@
+# --- 編輯器與 IDE 設定 (IDE & Editors) ---
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# --- 系統雜物 (System Files) ---
+.DS_Store
+Thumbs.db
+
+# --- 測試與日誌 (Logs & Debug) ---
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs
+*.log
+
+# --- 本機環境變數備份 (若你在最外層也有設定) ---
+.env
+.env.local
+
+# --- 若你未來會使用 Docker ---
+.docker/
