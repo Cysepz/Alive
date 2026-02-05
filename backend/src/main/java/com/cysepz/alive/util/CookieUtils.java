@@ -9,6 +9,18 @@ public class CookieUtils {
     private static final String DEFAULT_PATH = "/";
 
     /**
+     * 建立一個安全的 HttpOnly Cookie (專門放 Token)
+     */
+    public static void addSecureCookie(HttpServletResponse response, String name, String value) {
+        Cookie cookie = new Cookie(name, value);
+        cookie.setPath(DEFAULT_PATH);
+        cookie.setHttpOnly(true); // 關鍵：前端 JS 無法存取，防止 XSS
+        cookie.setSecure(false); // 開發環境 localhost 先設 false，正式環境 HTTPS 需設為 true
+        cookie.setMaxAge(DEFAULT_MAX_AGE);
+        response.addCookie(cookie);
+    }
+
+    /**
      * 建立一個可供前端讀取的 Cookie (HttpOnly = false)
      */
     public static void addClientCookie(HttpServletResponse response, String name, String value) {
