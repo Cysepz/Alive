@@ -1,5 +1,7 @@
 package com.cysepz.alive.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -17,4 +19,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     @Modifying
     @Query("UPDATE User u SET u.lastCheckInTime = CURRENT_TIMESTAMP, u.monthlyBitmap = :monthlyBitmap WHERE u.userId = :userId")
     void checkInByUserId(@Param("userId") long userId, @Param("monthlyBitmap") int monthlyBitmap);
+
+    Optional<User> findByProviderAndProviderId(User.AuthProvider provider, String providerId);
 }

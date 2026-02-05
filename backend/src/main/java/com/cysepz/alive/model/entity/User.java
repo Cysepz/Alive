@@ -22,8 +22,18 @@ import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
+@Getter // [1] 自動產生所有欄位的 Getter
+@Setter // [2] 自動產生所有欄位的 Setter
+@NoArgsConstructor // [3] JPA 規範：必須有無參數構造函數
+@AllArgsConstructor // [4] 方便測試與開發使用
+@Builder // [5] 專業標配：使用建造者模式建立物件
 @Table(name = "`USER`", uniqueConstraints = {
         @UniqueConstraint(columnNames = { "provider", "provider_id" })
 })
