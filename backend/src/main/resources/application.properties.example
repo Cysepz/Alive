@@ -1,0 +1,31 @@
+# --- 應用程式基本設定 ---
+app.version=1.0.0-LOCAL
+app.cors.allowed-origins=
+
+# --- H2 資料庫連線設定（請根據自己的環境修改） ---
+spring.datasource.url=jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
+spring.datasource.driver-class-name=org.h2.Driver
+spring.datasource.username=sa
+spring.datasource.password=
+
+# --- JPA / Hibernate 設定 ---
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE
+
+# --- H2 Console 設定 ---
+spring.h2.console.enabled=true
+spring.h2.console.path=/h2-console
+spring.mvc.pathmatch.matching-strategy=ant_path_matcher
+spring.h2.console.settings.web-allow-others=true
+spring.h2.console.settings.trace=true
+spring.security.frame-options=disable   # 針對 Spring Security 的保險 (若有依賴的話)
+spring.main.allow-bean-definition-overriding=true
+spring.jpa.defer-datasource-initialization=true
+spring.sql.init.mode=always
+
+# --- JWT 設定 (請填入至少 32 字元的隨機字串) ---
+jwt.secret=PLEASE_REPLACE_WITH_A_LONG_RANDOM_STRING_AT_LEAST_32_CHARS
+jwt.expirationTime=3600000
