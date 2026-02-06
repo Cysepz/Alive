@@ -21,23 +21,34 @@ public class AuthService {
         this.userRepository = userRepository;
     }
 
-    public record LoginResult(String account, String username, LocalDate birthday, Integer bitmap, String role,
-            String token) {
+    public sealed interface AuthResult permits LoginSuccess, RegisterPending {
     }
 
-    public LoginResult isUserExist(String providerStr, String providerId) {
+    public record LoginSuccess(String token, String account, String username, LocalDate birthday,
+            Integer bitmap, String role) implements AuthResult {
+    }
+
+    public record RegisterPending(String token, String suggestedUsername) implements AuthResult {
+    }
+
+    public AuthResult isUserExist(String providerStr, String providerId, String username, String useremail) {
         User.AuthProvider authProvider = User.AuthProvider.valueOf(providerStr.toUpperCase());
+
         return userRepository.findByProviderAndProviderId(authProvider, providerId)
-                .map(user -> {
-                    String account = user.getAccount();
-                    String username = user.getUsername();
-                    LocalDate birthday = user.getBirthday();
-                    int bitmap = user.getMonthlyBitmap();
-                    String role = user.getRole().toString();
+                .<AuthResult>map(user -> {
                     String token = jwtUtils.generateToken(user.getUserId());
-                    return new LoginResult(account, username, birthday, bitmap, role, token);
+                    return new LoginSuccess(
+                            token,
+                            user.getAccount(),
+                            user.getUsername(),
+                            user.getBirthday(),
+                            user.getMonthlyBitmap(),
+                            user.getRole().toString());
                 })
-                .orElse(null);
+                .orElseGet(() -> {
+                    String regToken = jwtUtils.generateRegisterToken(providerStr, providerId, username, useremail);
+                    return new RegisterPending(regToken, username); // 新建一個小 record
+                });
     }
 
 }
