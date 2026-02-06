@@ -19,6 +19,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -72,6 +73,10 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(name = "situation", nullable = false)
     private LivingSituation situation;
+
+    @Column(name = "email", unique = true)
+    @Email(message = "Invalid Email format")
+    private String email;
 
     @Column(name = "phone", unique = true, nullable = false)
     @Pattern(regexp = "09\\d{2}-\\d{3}-\\d{3}", message = "Invalid Phone number Format")
