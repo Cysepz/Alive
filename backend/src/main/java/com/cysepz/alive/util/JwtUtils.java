@@ -2,11 +2,14 @@ package com.cysepz.alive.util;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -46,6 +49,26 @@ public class JwtUtils {
                 .compact();
     }
 
+    public String generateRegisterToken(String provider, String providerId, String username, String useremail) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("provider", provider);
+        claims.put("providerId", providerId);
+        claims.put("username", username);
+        claims.put("useremail", useremail);
+        claims.put("purpose", "REGISTRATION");
+
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + 300000);
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject("pending_user") // 主體設為待定用戶
+                .setIssuedAt(now)
+                .setExpiration(expiryDate) // 5 分鐘有效
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
     /**
      * 從 Token 中獲取 User ID
      */
@@ -57,6 +80,29 @@ public class JwtUtils {
                 .getBody();
 
         return Long.parseLong(claims.getSubject());
+    }
+
+    /**
+     * 從 Token 中獲取 Provider ID, Provider username, Provider usermail
+     */
+    public Claims parseRegisterToken(String token) {
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+
+            // Security check: validate the token purpose
+            if (!"REGISTRATION".equals(claims.get("purpose"))) {
+                throw new RuntimeException("Invalid token purpose");
+            }
+            return claims;
+        } catch (ExpiredJwtException e) {
+            throw new RuntimeException("註冊連結已過期，請重新從第三方登入");
+        } catch (Exception e) {
+            throw new RuntimeException("無效的註冊憑證");
+        }
     }
 
     /**
