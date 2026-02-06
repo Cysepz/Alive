@@ -12,11 +12,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.cysepz.alive.model.dto.request.RegisterRequest;
 import com.cysepz.alive.model.dto.response.ApiResponse;
+import com.cysepz.alive.model.dto.response.AuthResult;
+import com.cysepz.alive.model.dto.response.AuthResult.*;
 import com.cysepz.alive.model.dto.response.LoginResponse;
 import com.cysepz.alive.service.AuthService;
-import com.cysepz.alive.service.AuthService.AuthResult;
-import com.cysepz.alive.service.AuthService.LoginSuccess;
-import com.cysepz.alive.service.AuthService.RegisterPending;
 import com.cysepz.alive.service.UserService;
 import com.cysepz.alive.util.CookieUtils;
 import com.cysepz.alive.util.JwtUtils;
@@ -49,44 +48,19 @@ public class AuthController {
         return switch (result) {
             case LoginSuccess login -> {
                 CookieUtils.addSecureCookie(response, "token", login.token());
-                LoginResponse responseData = new LoginResponse(
-                        login.account(),
-                        login.username(),
-                        login.birthday(),
-                        login.bitmap(),
-                        login.role());
-                yield new ApiResponse<>(200, "登入成功", responseData);
+                yield new ApiResponse<>(200, "登入成功", login);
             }
             case RegisterPending pending -> {
                 CookieUtils.addSecureCookie(response, "registerToken", pending.token());
-                System.out.println("===== register token parse result =====");
-                System.out.println(jwtUtils.parseRegisterToken(pending.token()));
-                yield new ApiResponse<>(202, "請前往註冊", Map.of("suggestedUsername", pending.suggestedUsername()));
+                yield new ApiResponse<>(202, "請前往註冊", pending);
             }
         };
-        // if (result != null) {
-        // LoginResponse responseData = new LoginResponse(
-        // result.account(),
-        // result.username(),
-        // result.birthday(),
-        // result.bitmap(),
-        // result.role());
-        // CookieUtils.addSecureCookie(response, "token", result.token());
-        // return new ApiResponse<>(200, "登入成功", responseData);
-        // } else {
-        // authService.
-        // CookieUtils.addSecureCookie(response, "registerToken", result.token());
-        // return new ApiResponse<>(202, "請前往註冊",
-        // Map.of("provider", provider, "providerId", providerId, "username",
-        // username));
-        // }
     }
 
     // @PostMapping("/register")
     // public ApiResponse<?> register(@RequestBody RegisterRequest request,
     // HttpServletResponse response) {
     // User newUser = userService.createUser(request);
-    // String token = jwtUtils.generateToken(newUser.getUserId());
     // CookieUtils.addClientCookie(response, "access_token", token);
     // return new ApiResponse<>(200, "註冊並登入成功", token);
     // }
