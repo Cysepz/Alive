@@ -46,6 +46,7 @@ public class AuthController {
                     result.account(),
                     result.username(),
                     result.birthday(),
+                    result.bitmap(),
                     result.role());
             CookieUtils.addSecureCookie(response, "token", result.token());
             return new ApiResponse<>(200, "登入成功", responseData);

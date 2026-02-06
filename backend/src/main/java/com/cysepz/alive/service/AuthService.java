@@ -21,7 +21,8 @@ public class AuthService {
         this.userRepository = userRepository;
     }
 
-    public record LoginResult(String account, String username, LocalDate birthday, String role, String token) {
+    public record LoginResult(String account, String username, LocalDate birthday, Integer bitmap, String role,
+            String token) {
     }
 
     public LoginResult isUserExist(String providerStr, String providerId) {
@@ -31,9 +32,10 @@ public class AuthService {
                     String account = user.getAccount();
                     String username = user.getUsername();
                     LocalDate birthday = user.getBirthday();
+                    int bitmap = user.getMonthlyBitmap();
                     String role = user.getRole().toString();
                     String token = jwtUtils.generateToken(user.getUserId());
-                    return new LoginResult(account, username, birthday, role, token);
+                    return new LoginResult(account, username, birthday, bitmap, role, token);
                 })
                 .orElse(null);
     }
