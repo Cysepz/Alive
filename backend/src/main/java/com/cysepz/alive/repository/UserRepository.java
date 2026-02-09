@@ -21,4 +21,8 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     void checkInByUserId(@Param("userId") long userId, @Param("monthlyBitmap") int monthlyBitmap);
 
     Optional<User> findByProviderAndProviderId(User.AuthProvider provider, String providerId);
+
+    boolean existsByAccount(String account);
+
+    boolean existsByEmail(String email);
 }

@@ -1,20 +1,19 @@
 package com.cysepz.alive.controller;
 
-import java.util.Map;
-
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.cysepz.alive.exception.InvalidTokenException;
 import com.cysepz.alive.model.dto.request.RegisterRequest;
 import com.cysepz.alive.model.dto.response.ApiResponse;
 import com.cysepz.alive.model.dto.response.AuthResult;
 import com.cysepz.alive.model.dto.response.AuthResult.*;
-import com.cysepz.alive.model.dto.response.LoginResponse;
 import com.cysepz.alive.service.AuthService;
 import com.cysepz.alive.service.UserService;
 import com.cysepz.alive.util.CookieUtils;
@@ -57,12 +56,37 @@ public class AuthController {
         };
     }
 
-    // @PostMapping("/register")
-    // public ApiResponse<?> register(@RequestBody RegisterRequest request,
-    // HttpServletResponse response) {
-    // User newUser = userService.createUser(request);
-    // CookieUtils.addClientCookie(response, "access_token", token);
-    // return new ApiResponse<>(200, "註冊並登入成功", token);
-    // }
+    @PostMapping("/register")
+    public ApiResponse<?> register(@RequestHeader(value = "Authorization", required = true) String registerToken,
+            @RequestBody RegisterRequest request,
+            HttpServletResponse response) {
+        var claims = jwtUtils.parseRegisterToken(registerToken);
+        String provider = claims.get("provider", String.class);
+        String providerId = claims.get("providerId", String.class);
+        String username = claims.get("username", String.class);
+        String useremail = claims.get("useremail", String.class);
+        if (provider == null || providerId == null || useremail == null) {
+            throw new InvalidTokenException("Register token is missing required identity claims.");
+        }
+
+        AuthResult result = userService.createUser(
+                provider,
+                providerId,
+                request.getAccount(),
+                request.getUsername(),
+                request.getBirthday(),
+                request.getAddress(),
+                request.getSituation(),
+                useremail,
+                request.getPhone());
+
+        if (result instanceof AuthResult.LoginSuccess login) {
+            CookieUtils.addSecureCookie(response, "token", login.token());
+            // 註冊成功後，清除舊的註冊用 Cookie
+            CookieUtils.deleteCookie(response, "registerToken");
+        }
+
+        return new ApiResponse<>(200, "註冊並登入成功", result);
+    }
 
 }

@@ -36,7 +36,7 @@ import lombok.Setter;
 @AllArgsConstructor // [4] 方便測試與開發使用
 @Builder // [5] 專業標配：使用建造者模式建立物件
 @Table(name = "`USER`", uniqueConstraints = {
-        @UniqueConstraint(columnNames = { "provider", "provider_id" })
+        @UniqueConstraint(name = "uk_oauth_source", columnNames = { "provider", "provider_id" })
 })
 public class User {
     @Id
@@ -51,7 +51,7 @@ public class User {
     @Column(name = "provider_id", nullable = false)
     private String providerId;
 
-    @Column(name = "token", nullable = true)
+    @Column(name = "token", unique = true, nullable = true)
     private String token;
 
     @Column(name = "account", length = 20, unique = true, nullable = false)
@@ -74,11 +74,11 @@ public class User {
     @Column(name = "situation", nullable = false)
     private LivingSituation situation;
 
-    @Column(name = "email", unique = true)
+    @Column(name = "email", unique = true, nullable = false)
     @Email(message = "Invalid Email format")
     private String email;
 
-    @Column(name = "phone", unique = true, nullable = false)
+    @Column(name = "phone", nullable = false)
     @Pattern(regexp = "09\\d{2}-\\d{3}-\\d{3}", message = "Invalid Phone number Format")
     private String phone;
 

@@ -2,16 +2,59 @@ package com.cysepz.alive.service;
 
 import java.time.LocalDate;
 import org.springframework.stereotype.Service;
+
+import com.cysepz.alive.exception.BusinessException;
+import com.cysepz.alive.model.dto.response.AuthResult;
+import com.cysepz.alive.model.entity.User;
 import com.cysepz.alive.repository.UserRepository;
+import com.cysepz.alive.service.component.AuthResultFactory;
 
 import jakarta.transaction.Transactional;
 
 @Service
 public class UserService {
     private UserRepository userRepository;
+    private AuthResultFactory authResultFactory;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, AuthResultFactory authResultFactory) {
         this.userRepository = userRepository;
+        this.authResultFactory = authResultFactory;
+    }
+
+    /* 註冊用戶 */
+    public AuthResult createUser(String providerStr, String providerId, String account, String username,
+            LocalDate birthday, String address, User.LivingSituation situation, String email, String phone) {
+        User.AuthProvider provider = User.AuthProvider.valueOf(providerStr.toUpperCase());
+
+        // 檢查此帳號是否已經註冊過
+        if (userRepository.findByProviderAndProviderId(provider, providerId).isPresent()) {
+            throw new BusinessException("此社交帳號已綁定過，請直接登入");
+        }
+
+        // 檢查所有 Unique 欄位
+        if (userRepository.existsByAccount(account)) {
+            throw new BusinessException("帳號已存在，請換一個");
+        }
+        if (userRepository.existsByEmail(email)) {
+            throw new BusinessException("此信箱已經註冊過，請換一個");
+        }
+
+        User newUser = new User();
+        newUser.setProvider(provider);
+        newUser.setProviderId(providerId);
+        newUser.setAccount(account);
+        newUser.setUsername(username);
+        newUser.setBirthday(birthday);
+        newUser.setAddress(address);
+        newUser.setSituation(situation);
+        newUser.setEmail(email);
+        newUser.setPhone(phone);
+        newUser.setRole(User.Role.MEMBER);
+        newUser.setMonthlyBitmap(0);
+
+        User savedUser = userRepository.save(newUser);
+        System.out.println(savedUser);
+        return authResultFactory.toLoginSuccess(savedUser);
     }
 
     // 確認今日是否已經打卡
