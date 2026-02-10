@@ -4,7 +4,6 @@ import MainLayout from './layouts/MainLayout';
 import RegisterPage from './pages/RegisterPage';
 import LandingPage from './pages/LandingPage';
 import HomePage from './pages/HomePage';
-import ProtectedRoute from './components/ProtecedRoute';
 
 function App() {
   return (
