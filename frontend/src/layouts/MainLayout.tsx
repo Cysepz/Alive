@@ -12,7 +12,7 @@ const MainLayout: React.FC = () => {
   }, [pathname]);
 
   return (
-    <div className="flex flex-col min-h-screen bg-white">
+    <div className="flex flex-col h-screen w-full overflow-hidden bg-white">
       {/* 導覽列 */}
       <Navbar />
 
@@ -20,7 +20,8 @@ const MainLayout: React.FC = () => {
           - pb-24: 這是重點！為底部的 Fixed Footer 預留呼吸空間。
           - 這樣 HomePage 的內容就不會被蓋住，且所有頁面保持一致。
       */}
-      <main className="flex-grow w-full pb-24 md:pb-32">
+      {/* <main className="flex-grow w-full pb-24 md:pb-32"> */}
+        <main className="flex-1 flex flex-col min-h-0">
         <Outlet /> 
       </main>
 

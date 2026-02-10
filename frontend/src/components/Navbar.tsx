@@ -1,32 +1,43 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
+import LogoImg from '../assets/logo.png';
 
 const Navbar: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const mode = searchParams.get('mode');
+
+  // 定義樣式
+  const activeStyles = "bg-[#79c4e0] text-white shadow-md";
+  const inactiveStyles = "text-gray-600 hover:text-[#79c4e0] hover:bg-gray-50";
+
   return (
-    <nav className="sticky top-0 z-50 flex justify-between items-center px-12 py-5 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm">
+    <nav className="sticky top-0 h-20 z-50 flex justify-between items-center px-12 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm">
       {/* Logo 區域 */}
       <Link to="/" className="flex items-center group">
-        <div className="text-3xl font-light tracking-tighter text-[#79c4e0] flex items-center">
-          <span className="text-4xl font-serif">A</span>live
-          <div className="ml-2 relative">
-             <span className="text-yellow-400 text-2xl">☀️</span>
-             {/* 模擬心電圖小線條 */}
-             <div className="absolute -left-4 top-1/2 w-4 h-[2px] bg-[#79c4e0]/40"></div>
-          </div>
+        <div className="flex items-center gap-3">
+            <img 
+              src={LogoImg} 
+              alt="Alive Logo" 
+              className="w-20 h-10 object-contain group-hover:scale-110 transition-transform duration-300" 
+            />
         </div>
       </Link>
 
       {/* 按鈕區域 */}
       <div className="flex items-center gap-8">
         <Link 
-          to="/register" 
-          className="text-gray-600 hover:text-[#79c4e0] font-medium transition-colors"
+          to="/get-start?mode=register" 
+          className={`px-6 py-2 rounded-full font-medium transition-all duration-300 active:scale-95 ${
+            mode === 'register' ? activeStyles : inactiveStyles
+          }`}
         >
           註冊
         </Link>
         <Link 
-          to="/login" 
-          className="px-6 py-2 bg-[#79c4e0] text-white rounded-full hover:bg-[#68b3cf] transition-all shadow-md active:scale-95"
+          to="/get-start?mode=login" 
+          className={`px-6 py-2 rounded-full font-medium transition-all duration-300 active:scale-95 ${
+            mode === 'login' || !mode ? activeStyles : inactiveStyles
+          }`}
         >
           登入
         </Link>
