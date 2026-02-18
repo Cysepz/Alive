@@ -1,62 +1,89 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import StatusCalendar from '../components/StatusCalendar';
+import CheckInOverlay from '../components/CheckInOverlay';
 
 const HomePage: React.FC = () => {
-  return (
-    /* 使用 min-h-[80vh] 確保內容區塊有足夠高度，不被 Footer 擠壓 */
-    <div className="relative min-h-[calc(100vh-80px)] bg-white flex flex-col font-sans overflow-x-hidden">
-      
-      {/* 裝飾性背景：右上方淡藍色漸層，增加空間深度感 */}
-      <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-[#79c4e0]/5 rounded-full blur-3xl pointer-events-none" />
+  const [bitmap, setBitmap] = useState<string>(localStorage.getItem('alive_bitmap') || "0".repeat(31));
+  const todayIndex = new Date().getDate() - 1;
+  const [hasCheckedIn, setHasCheckedIn] = useState(bitmap[todayIndex] === '1');
 
-      <main className="relative z-10 grow flex flex-col md:flex-row items-center px-8 md:px-16 lg:px-24 py-12 md:py-0 max-w-7xl mx-auto w-full gap-12 lg:gap-24">
+  const handleCheckIn = () => {
+    const newBitmap = bitmap.substring(0, todayIndex) + "1" + bitmap.substring(todayIndex + 1);
+    setBitmap(newBitmap);
+    localStorage.setItem('alive_bitmap', newBitmap);
+    setHasCheckedIn(true);
+    document.body.style.overflow = 'auto';
+  };
+
+  useEffect(() => {
+    if (!hasCheckedIn) {
+      document.body.style.overflow = 'hidden';
+    }
+  }, [hasCheckedIn]);
+
+  return (
+    <div className="h-full w-full bg-[#f5f5f7] selection:bg-[#79c4e0]/30 font-sans overflow-y-auto custom-scrollbar">
+      {!hasCheckedIn && <CheckInOverlay onCheckIn={handleCheckIn} />}
+
+      <main className={`max-w-6xl mx-auto px-6 py-12 flex flex-col md:flex-row gap-10 transition-all duration-1000 ${!hasCheckedIn ? 'blur-3xl scale-95 pointer-events-none' : 'blur-0 scale-100'}`}>
         
-        {/* --- 左側文字內容區 --- */}
-        <div className="md:w-3/5 space-y-10 order-2 md:order-1">
-          <div className="space-y-6">            
-            <article className="text-gray-600 space-y-8">
-              <p className="text-lg md:text-xl leading-[2.2] text-justify font-light tracking-wide">
-                選擇不婚不生的人越來越多，「獨居」不再只是高齡者的課題，
-                而是這一整個世代都可能面對的日常。近年在韓國、日本等地出現的
-                <span className="relative inline-block px-1 mx-1 font-normal text-gray-800 italic">
-                  「孤獨死」
-                  <span className="absolute bottom-1 left-0 w-full h-[6px] bg-red-100 -z-10" />
-                </span>
-                新聞，也不斷提醒我們：自由選擇一個人生活的人，並不等於不需要被在乎。
-              </p>
-              
-              <p className="text-lg md:text-xl leading-[2.2] text-justify font-light tracking-wide">
-                <span className="text-2xl font-semibold text-[#79c4e0] tracking-tighter mr-2">Alive</span> 
-                想做的，是為這樣的生活多鋪一層溫柔的安全網 — 讓忠誠選擇陪自己過日子的人，到最後一刻不必孤獨。
-              </p>
-            </article>
+        {/* 左側：側邊欄 (Sidebar) */}
+        <aside className="md:w-[280px] space-y-6 flex-shrink-0">
+          <StatusCalendar bitmap={bitmap} />
+          
+          <div className="bg-white/70 backdrop-blur-md p-7 rounded-[2.5rem] shadow-sm border border-white/50">
+            <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-1 text-center md:text-left">Continuous</p>
+            <p className="text-[#1a6b9a] text-4xl font-black tracking-tighter text-center md:text-left">15 <span className="text-sm font-medium text-gray-300">Days</span></p>
           </div>
 
-          {/* 增加一個引導按鈕，增加畫面的平衡感 */}
-          <div className="pt-4">
-            <button className="px-8 py-3 bg-white border border-[#79c4e0] text-[#79c4e0] rounded-full hover:bg-[#79c4e0] hover:text-white transition-all duration-300 shadow-sm active:scale-95">
-              了解更多服務內容
+          <div className="bg-[#fef9c3]/40 p-7 rounded-[2.5rem] border border-yellow-100/50 shadow-sm">
+            <p className="text-yellow-900/50 text-sm leading-relaxed font-medium italic">
+              「冷知識：在關島，每一分鐘都會經過 60 秒。」
+            </p>
+          </div>
+        </aside>
+
+        {/* 右側：主動態流 (Main Feed) */}
+        <section className="flex-1 space-y-8">
+          {/* 發佈狀態框 */}
+          <div className="bg-white rounded-[2rem] shadow-sm p-3 pl-6 flex items-center gap-4 border border-white">
+            <div className="w-10 h-10 rounded-full bg-gray-100 shadow-inner" />
+            <input 
+              type="text" 
+              placeholder="分享今天的平安..." 
+              className="flex-1 bg-transparent border-none focus:ring-0 text-sm text-gray-600 font-medium" 
+            />
+            <button className="px-6 py-2.5 bg-gray-900 text-white rounded-full text-xs font-bold active:scale-95 transition-all shadow-lg shadow-gray-200">
+              發佈
             </button>
           </div>
-        </div>
 
-        {/* --- 右側插圖區 --- */}
-        <div className="md:w-2/5 flex justify-center items-center order-1 md:order-2">
-          <div className="relative w-full group">
-            {/* 圖片後方的光暈裝飾 */}
-            <div className="absolute inset-0 bg-[#79c4e0]/10 rounded-full scale-90 blur-2xl group-hover:scale-100 transition-transform duration-700" />
+          {/* 貼文內容卡片 */}
+          <div className="bg-white rounded-[3rem] shadow-[0_20px_60px_rgba(0,0,0,0.02)] border border-white p-10 space-y-6 text-left">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-[#79c4e0]/10 flex items-center justify-center shadow-inner text-xl">👤</div>
+              <div>
+                <h5 className="font-bold text-gray-800 text-lg tracking-tight">Alive User</h5>
+                <p className="text-[10px] text-gray-300 font-bold uppercase tracking-widest">2 hours ago</p>
+              </div>
+            </div>
             
-            <img 
-              src="/path-to-your-illustration.png" 
-              alt="Alive Illustration" 
-              className="relative z-10 w-full h-auto object-contain drop-shadow-[0_10px_15px_rgba(0,0,0,0.05)] transform group-hover:-translate-y-2 transition-transform duration-500"
-            />
+            <p className="text-gray-500 leading-relaxed font-light text-lg">
+              username 還活著
+            </p>
+            
+            <div className="pt-4 border-t border-gray-50 flex justify-start">
+              <button className="flex items-center gap-2 text-gray-300 hover:text-red-400 transition-colors">
+                <span className="text-lg">❤️</span>
+                <span className="text-xs font-bold">12</span>
+              </button>
+            </div>
           </div>
-        </div>
+        </section>
 
       </main>
-
-      {/* 底部裝飾線 */}
-      <div className="w-full h-px bg-gradient-to-r from-transparent via-gray-100 to-transparent" />
+      {/* 為了美觀，可以在底部加一個 spacer */}
+      <div className="h-10" />
     </div>
   );
 };
