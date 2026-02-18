@@ -1,7 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import MainLayout from './layouts/MainLayout';
-import RegisterPage from './pages/RegisterPage';
+import UserInfoForm from './pages/register/UserInfoForm';
+import ContactInfoForm from './pages/register/ContactInfoForm';
 import LandingPage from './pages/LandingPage';
 import HomePage from './pages/HomePage';
 
@@ -13,7 +14,8 @@ function App() {
           {/* --- 公開路徑 --- */}
           <Route path="/" element={<LandingPage />} />
           <Route path="/get-start" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/signup/user" element={<UserInfoForm />} />
+          <Route path="/signup/contact" element={<ContactInfoForm />} />
             <Route path="/home" element={<HomePage />} />
 
           {/* --- 受保護路徑 (需要登入) --- */}
