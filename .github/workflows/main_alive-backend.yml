@@ -25,10 +25,17 @@ jobs:
           distribution: 'microsoft'
 
       - name: Build with Maven
-        run: mvn clean install
+        run: mvn clean package
+        # run: mvn clean install
         # run: mvn clean package -DskipTests
         working-directory: ./backend
-
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          APP_CORS_ALLOWED_ORIGINS: ${{ secrets.APP_CORS_ALLOWED_ORIGINS }}
+          APP_FRONTEND_SUCCESS_URL: ${{ secrets.APP_FRONTEND_SUCCESS_URL }}
+          APP_FRONTEND_REGISTER_URL: ${{ secrets.APP_FRONTEND_REGISTER_URL }}
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
