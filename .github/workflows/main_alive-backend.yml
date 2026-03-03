@@ -7,6 +7,9 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'backend/**'
+      - 'workflows/main_alive-backend.yml'
   workflow_dispatch:
 
 jobs:
