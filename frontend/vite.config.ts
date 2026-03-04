@@ -18,5 +18,11 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
+    build: {
+      // 確保輸出目錄與 GitHub Action 設定一致
+      outDir: 'dist',
+      // 確保產生資產清單，有助於除錯
+      manifest: true,
+    },
   };
 });
