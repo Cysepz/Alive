@@ -1,5 +1,13 @@
 {
   "navigationFallback": {
     "rewrite": "/index.html"
+  },
+  "mimeTypes": {
+    ".js": "application/javascript",
+    ".mjs": "application/javascript",
+    ".css": "text/css"
+  },
+  "globalHeaders": {
+    "X-Content-Type-Options": "nosniff"
   }
 }
