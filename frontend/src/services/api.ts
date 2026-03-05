@@ -15,7 +15,9 @@ export const API_ROUTES = {
     LOGOUT: `${API_BASE}/auth/logout`,
   },
   USER: {
-    GETCALENDAR: `${API_BASE}/user/`
+    CHECK_IN: `${API_BASE}/user/check-in`,
+    GET_RECORD: `${API_BASE}/user/get-record`,
+    GET_PROFILE: `${API_BASE}/user/get-profile`,
   }
 };
 
