@@ -1,6 +1,6 @@
 import api, { API_ROUTES } from "./api";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL;
+const BASE_URL = api.defaults.baseURL || '';
 
 export interface SignupRequest {
   account: string;
@@ -13,9 +13,8 @@ export interface SignupRequest {
 
 export const authService = {
   getOAuth2Url: (platform: string) => {
-    const baseWithoutApi = API_BASE.replace(/\/api$/, '');
-    console.log(baseWithoutApi);
-        return `${baseWithoutApi}/oauth2/authorization/${platform}`;
+    console.log(String(BASE_URL));
+    return `${String(BASE_URL)}/oauth2/authorization/${platform}`;
   },
   
   logout: () => {

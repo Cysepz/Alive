@@ -14,14 +14,11 @@ export default defineConfig(({ mode }) => {
         '/api': {
           target: env.VITE_API_BASE_URL || 'http://localhost:8080', // 從 .env 取得
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/api/, ''),
         },
       },
     },
     build: {
-      // 確保輸出目錄與 GitHub Action 設定一致
       outDir: 'dist',
-      // 確保產生資產清單，有助於除錯
       manifest: true,
     },
   };
