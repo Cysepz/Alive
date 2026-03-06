@@ -1,25 +1,65 @@
 import React, { useState, useEffect } from 'react';
 import StatusCalendar from '../components/StatusCalendar';
 import CheckInOverlay from '../components/CheckInOverlay';
+import { userService } from '../services/userService';
 
 const HomePage: React.FC = () => {
-  const [bitmap, setBitmap] = useState<string>(localStorage.getItem('alive_bitmap') || "0".repeat(31));
-  const todayIndex = new Date().getDate() - 1;
-  const [hasCheckedIn, setHasCheckedIn] = useState(bitmap[todayIndex] === '1');
+  const [bitmap, setBitmap] = useState<number>(0);
+  const [hasCheckedIn, setHasCheckedIn] = useState<boolean>(true); // 預設 true 避免閃爍，由 useEffect 判定
+  const [loading, setLoading] = useState<boolean>(true);
+  // const todayIndex = new Date().getDate() - 1;
+  // const [hasCheckedIn, setHasCheckedIn] = useState(bitmap[todayIndex] === '1');
+  
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        setLoading(true);
+        // 假設你的 userService 有一個 getProfile 或 getStatus
+        // 這裡暫時用你現有的邏輯：從後端獲取最新 bitmap
+        const data = await userService.checkIn(); // 如果 checkin API 同時也當作取得狀態
+        
+        setBitmap(data.monthlyBitmap);
+        
+        // 判定今天是否已打卡 (取得當前日期 index)
+        const todayIndex = new Date().getDate() - 1;
+        const checked = ((data.monthlyBitmap >> todayIndex) & 1) === 1;
+        setHasCheckedIn(checked);
 
-  const handleCheckIn = () => {
-    const newBitmap = bitmap.substring(0, todayIndex) + "1" + bitmap.substring(todayIndex + 1);
-    setBitmap(newBitmap);
-    localStorage.setItem('alive_bitmap', newBitmap);
-    setHasCheckedIn(true);
-    document.body.style.overflow = 'auto';
+        // 控制 body 捲軸
+        document.body.style.overflow = checked ? 'auto' : 'hidden';
+      } catch (error) {
+        console.error("載入使用者資料失敗:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  const handleCheckIn = async () => {
+    try {
+      // 先呼叫後端 API 並等待後端回應
+      const data = await userService.checkIn(); 
+      setBitmap(data.monthlyBitmap);
+      setHasCheckedIn(true);
+      document.body.style.overflow = 'auto';
+    } catch (error) {
+      console.error("打卡失敗:", error);
+      alert("回報平安失敗，請檢查網路連線");
+    }
   };
 
-  useEffect(() => {
-    if (!hasCheckedIn) {
-      document.body.style.overflow = 'hidden';
-    }
-  }, [hasCheckedIn]);
+  // 載入中畫面
+  if (loading) {
+    return <div className="h-screen w-full flex items-center justify-center text-gray-400">Loading...</div>;
+  }
+
+  // useEffect(() => {
+  //   if (!hasCheckedIn) {
+  //     document.body.style.overflow = 'hidden';
+  //   }
+  // }, [hasCheckedIn]);
 
   return (
     <div className="h-full w-full bg-[#f5f5f7] selection:bg-[#79c4e0]/30 font-sans overflow-y-auto custom-scrollbar">
