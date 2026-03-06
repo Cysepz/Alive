@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import LogoImg from '../../assets/logo.png';
 import AddressPicker from '../../components/AddressPicker';
-import axios from 'axios';
-import api from '../../services/api';
 import { authService, type SignupRequest } from '../../services/authService';
 
 const UserInfoForm: React.FC = () => {
@@ -62,6 +60,9 @@ const UserInfoForm: React.FC = () => {
     if (name === 'account') {
       if (!lowerValue) setErrors(prev => ({ ...prev, account: '帳號不能為空' }));
       else if (!igAccountRegex.test(lowerValue)) setErrors(prev => ({ ...prev, account: '僅限英數、下底線或句點' }));
+      else if (lowerValue.length > 30) setErrors(prev => ({ ...prev, account: '帳號不能超過 30 個字元' }));
+      else if (lowerValue.startsWith('.') || lowerValue.endsWith('.')) setErrors(prev => ({ ...prev, account: '句點不能在開頭或結尾' }));
+      else if (lowerValue.includes('..')) setErrors(prev => ({ ...prev, account: '不能連續使用兩個句點' }));
       else setErrors(prev => ({ ...prev, account: '' }));
     }
 

@@ -211,7 +211,7 @@ const ContactInfoForm: React.FC = () => {
     setIsSubmitting(true);
     try {
       // 這裡呼叫新增聯絡人的 API (例如使用 axios)
-      // const response = await axios.post('/api/user/contact', formData);
+      // const response = await axios.post('/api/user/register', formData);
       
       console.log('聯絡人建立成功，準備進入主頁:', formData);
       
