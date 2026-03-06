@@ -28,6 +28,20 @@ public class SecurityConfig {
     public SecurityConfig(CustomOAuth2UserService customOAuth2UserService, JwtUtils jwtUtils) {
         this.customOAuth2UserService = customOAuth2UserService;
         this.jwtUtils = jwtUtils;
+
+        System.out.println("======= [DEBUG] Azure Environment Variables =======");
+        System.out.println("DB_URL: " + System.getenv("SPRING_DATASOURCE_URL"));
+        System.out.println("DB_USER: " + System.getenv("SPRING_DATASOURCE_USERNAME"));
+
+        // 密碼建議只印出長度或前兩個字，確保隱私但又能確認有抓到值
+        String pwd = System.getenv("SPRING_DATASOURCE_PASSWORD");
+        if (pwd != null && pwd.length() > 0) {
+            System.out.println("DB_PWD Length: " + pwd.length());
+            System.out.println("DB_PWD Starts with: " + pwd.substring(0, Math.min(pwd.length(), 2)));
+        } else {
+            System.out.println("DB_PWD is NULL or Empty!");
+        }
+        System.out.println("==================================================");
     }
 
     @Bean
