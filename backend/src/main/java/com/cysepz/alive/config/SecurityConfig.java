@@ -22,7 +22,6 @@ public class SecurityConfig {
     @Value("${app.frontend.register-url}")
     private String registerUrl;
 
-    @Autowired
     private CustomOAuth2UserService customOAuth2UserService;
     private JwtUtils jwtUtils;
 
@@ -43,9 +42,11 @@ public class SecurityConfig {
                         // 2. 允許 H2 使用 Frame
                         .frameOptions(frame -> frame.sameOrigin()))
                 .authorizeHttpRequests(auth -> auth
-                        // 3. 允許公開訪問的路徑
-                        .requestMatchers("/api/**", "/", "/login/**", "/error", "/h2-console/**").permitAll()
-                        .anyRequest().authenticated())
+                        .anyRequest().permitAll()) // 暫時全開測試
+                // 3. 允許公開訪問的路徑
+                // .requestMatchers("/api/**", "/", "/login/**", "/error",
+                // "/h2-console/**").permitAll()
+                // .anyRequest().authenticated())
                 .oauth2Login(oauth2 -> oauth2
                         // 掛載了查詢 user 是否存在的 Service
                         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
