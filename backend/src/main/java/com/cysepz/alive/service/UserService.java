@@ -1,10 +1,13 @@
 package com.cysepz.alive.service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 import org.springframework.stereotype.Service;
 
 import com.cysepz.alive.exception.BusinessException;
 import com.cysepz.alive.model.dto.response.AuthResult;
+import com.cysepz.alive.model.dto.response.CheckInResponse;
 import com.cysepz.alive.model.entity.User;
 import com.cysepz.alive.repository.UserRepository;
 import com.cysepz.alive.service.component.AuthResultFactory;
@@ -66,17 +69,25 @@ public class UserService {
 
     // 今日打卡
     @Transactional
-    public int checkIn(Long userId) {
-        System.out.printf("----- userId = %d -----\n", userId);
+    public boolean checkIn(Long userId) {
         int day = LocalDate.now().getDayOfMonth();
-        int originalBitmap = getMonthlyBitmap(userId);
+        int originalBitmap = userRepository.findMonthlyBitmapByUserId(userId);
         int newBitmap = originalBitmap | (1 << (day - 1));
         userRepository.checkInByUserId(userId, newBitmap);
 
-        return getMonthlyBitmap(userId);
+        return true;
     }
 
-    public int getMonthlyBitmap(Long userId) {
-        return userRepository.findMonthlyBitmapByUserId(userId);
+    public CheckInResponse getRecord(Long userId) {
+        int bitmap = userRepository.findMonthlyBitmapByUserId(userId);
+        LocalDateTime lastCheckInTime = userRepository.findLastCheckInTimeByUserId(userId);
+        CheckInResponse result = new CheckInResponse();
+        result.setLastCheckInTime(lastCheckInTime);
+        result.setMonthlyBitmap(bitmap);
+        return result;
     }
+
+    // public LocalDateTime getLastCheckInTime(Long userId) {
+    // return userRepository.findLastCheckInTimeByUserId(userId);
+    // }
 }

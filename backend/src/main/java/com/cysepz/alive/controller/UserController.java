@@ -6,6 +6,7 @@ import com.cysepz.alive.exception.InvalidTokenException;
 import com.cysepz.alive.model.dto.request.RegisterRequest;
 import com.cysepz.alive.model.dto.response.ApiResponse;
 import com.cysepz.alive.model.dto.response.AuthResult;
+import com.cysepz.alive.model.dto.response.CheckInResponse;
 import com.cysepz.alive.service.UserService;
 import com.cysepz.alive.util.CookieUtils;
 import com.cysepz.alive.util.JwtUtils;
@@ -18,6 +19,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/api/user") // controller 的共同 prefix
@@ -56,7 +59,6 @@ public class UserController {
 
         if (result instanceof AuthResult.LoginSuccess login) {
             CookieUtils.addSecureCookie(response, "token", login.token());
-            // 註冊成功後，清除舊的註冊用 Cookie
             CookieUtils.deleteCookie(response, "registerToken");
         }
 
@@ -64,13 +66,12 @@ public class UserController {
     }
 
     @PutMapping("/check-in")
-    public ApiResponse<String> checkIn(@RequestHeader(value = "Authorization", required = false) String token,
+    public ApiResponse<?> checkIn(@CookieValue(value = "token", required = true) String token,
             HttpServletResponse response) {
-        Long userId = (token == null) ? (long) 1 : jwtUtils.getUserIdFromToken(token.replace("Bearer ", ""));
-        int updatedBitmap = userService.checkIn(userId);
-        System.out.println(updatedBitmap);
-
-        CookieUtils.addClientCookie(response, "bitmap", String.valueOf(updatedBitmap));
-        return new ApiResponse<>(200, "打卡成功", null);
+        Long userId = jwtUtils.getUserIdFromToken(token);
+        boolean checkedIn = userService.checkIn(userId);
+        CheckInResponse checkInResponse = userService.getRecord(userId);
+        return new ApiResponse<>(200, "打卡成功", checkInResponse);
     }
+
 }
